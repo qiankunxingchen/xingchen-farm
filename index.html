@@ -184,11 +184,20 @@
 
 <div id="topbar" class="hud">
   <div class="seg" id="daySeg"><span class="ic" style="background:#ffd86b"></span><span class="cap">第</span><b id="dayN">1</b><span class="cap">天</span></div>
-  <div class="seg hide-s" id="timeSeg"><span class="ic" style="background:#7fd6ff"></span><b id="timeN">06:00</b></div>
-  <div class="seg hide-s" id="weaSeg"><span class="ic" id="weaIc" style="background:#8fd0ff"></span><b id="weaN">晴</b></div>
   <div class="seg"><span class="ic" style="background:#ffd86b"></span><b id="goldN">0</b><span class="cap">金</span></div>
   <div class="seg"><span class="ic" style="background:#b06cff"></span><b id="starN">0</b><span class="cap">星尘</span></div>
   <div class="seg"><span class="cap">体力</span><span class="bar" id="ebar"><i style="width:100%"></i></span></div>
+  <div class="seg" id="accSeg" style="cursor:pointer" title="账号：登录后开启云端存档与公网联机"><span class="ic" style="background:#58d68d"></span><b id="accN">未登录</b></div>
+</div>
+
+<div id="resline" class="hud hide-s" style="left:300px;top:8px;font-size:12px;color:#e8e8ee;background:rgba(12,20,38,0.78);padding:5px 12px;border-radius:9px">
+  <span style="display:flex;gap:4px;align-items:center"><i style="width:10px;height:10px;border-radius:2px;background:#a9723f;display:inline-block"></i><b id="resWood">0</b></span>
+  <span style="display:flex;gap:4px;align-items:center"><i style="width:10px;height:10px;border-radius:2px;background:#a8a9b5;display:inline-block"></i><b id="resOre">0</b></span>
+  <span style="display:flex;gap:4px;align-items:center"><i style="width:10px;height:10px;border-radius:2px;background:#8d8d92;display:inline-block"></i><b id="resStone">0</b></span>
+  <span style="display:flex;gap:4px;align-items:center"><i style="width:10px;height:10px;border-radius:2px;background:#8f6bff;display:inline-block"></i><b id="resGem">0</b></span>
+  <span style="display:flex;gap:4px;align-items:center"><i style="width:10px;height:10px;border-radius:2px;background:#ffd86b;display:inline-block"></i><b id="resFood">0</b></span>
+  <span id="ownLine" style="color:var(--gold);font-weight:800"></span>
+  <span id="driveLine" style="color:#e0566a;font-weight:800"></span>
 </div>
 
 <div id="mmsg" class="hud"></div>
@@ -209,6 +218,9 @@
   <div class="tool" data-tool="axe" id="t-axe" title="斧头 [5]">
     <svg viewBox="0 0 24 24" fill="none"><path d="M20 4L12 12l1.5 1.5L21 5.5z" fill="#d9dde6"/><rect x="12" y="11.2" width="2.6" height="9" rx="1.2" fill="#a9723f"/></svg>
     <span class="tname">斧头</span><span class="tnum">5</span></div>
+  <div class="tool" data-tool="pick" id="t-pick" title="镐 [6]">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M20 4L13 11l2 2 7-7z" fill="#d9dde6"/><rect x="12.6" y="11.6" width="2.6" height="9" rx="1.2" fill="#6a6a72" transform="rotate(35 12.6 11.6)"/></svg>
+    <span class="tname">镐</span><span class="tnum">6</span></div>
   <div class="sep"></div>
   <div id="seedRow" style="display:flex; gap:8px;"></div>
   <div class="sep"></div>
@@ -220,13 +232,16 @@
   <button class="btn small" id="btnHelp">玩法</button>
 </div>
 
-<div id="minimap" class="hud"><canvas id="mmap" width="150" height="100"></canvas></div>
+<div id="minimap" class="hud" style="cursor:pointer" title="点击放大大地图">
+  <canvas id="mmap" width="150" height="100"></canvas>
+  <div id="mmInfo" style="text-align:center;font-size:11px;margin-top:3px;letter-spacing:0.5px">06:00 · 晴</div>
+</div>
 
 <div id="helpbar" class="hud hide-s">
   <div class="row"><span class="k">WASD</span><span>移动</span></div>
   <div class="row"><span class="k">E</span><span>背包</span></div>
   <div class="row"><span class="k">空格</span><span>使用工具</span></div>
-  <div class="row"><span class="k">1-5</span><span>选工具</span></div>
+  <div class="row"><span class="k">1-6</span><span>选工具</span></div>
   <div class="row"><span class="k">Z</span><span>喂星灵</span></div>
   <div class="row"><span class="k">M</span><span>小地图</span></div>
 </div>
@@ -246,6 +261,43 @@
   </div>
 </div>
 
+<!-- ===== 银行 ===== -->
+<div class="modal" id="bankModal"><div class="card">
+  <button class="close" data-close="bankModal">×</button>
+  <h2><span class="ic" style="width:20px;height:20px;background:#d89a3a;border-radius:5px;display:inline-block"></span> 星尘银行</h2>
+  <div id="bankBody"></div>
+</div></div>
+<!-- ===== 医院 ===== -->
+<div class="modal" id="hospitalModal"><div class="card">
+  <button class="close" data-close="hospitalModal">×</button>
+  <h2><span class="ic" style="width:20px;height:20px;background:#e0566a;border-radius:5px;display:inline-block"></span> 医院</h2>
+  <div id="hospBody"></div>
+</div></div>
+<!-- ===== 行政服务中心 ===== -->
+<div class="modal" id="adminModal"><div class="card">
+  <button class="close" data-close="adminModal">×</button>
+  <h2><span class="ic" style="width:20px;height:20px;background:#6a7bd0;border-radius:5px;display:inline-block"></span> 行政服务中心</h2>
+  <div id="adminBody"></div>
+</div></div>
+<!-- ===== 饭店 ===== -->
+<div class="modal" id="restModal"><div class="card">
+  <button class="close" data-close="restModal">×</button>
+  <h2><span class="ic" style="width:20px;height:20px;background:#ff8a5a;border-radius:5px;display:inline-block"></span> 饭店</h2>
+  <div id="restBody"></div>
+</div></div>
+<!-- ===== 便利店 ===== -->
+<div class="modal" id="storeModal"><div class="card">
+  <button class="close" data-close="storeModal">×</button>
+  <h2><span class="ic" style="width:20px;height:20px;background:#7fd06a;border-radius:5px;display:inline-block"></span> 便利店</h2>
+  <div id="storeList"></div>
+</div></div>
+<!-- ===== 大地图 ===== -->
+<div class="modal" id="mapModal"><div class="card">
+  <button class="close" data-close="mapModal">×</button>
+  <h2>星尘农场大地图 · <span id="bigTime" style="color:#7fd6ff">06:00</span> · <span id="bigWea" style="color:#8fd0ff">晴</span></h2>
+  <canvas id="bigmap" width="640" height="427" style="max-width:100%;border-radius:12px"></canvas>
+  <div style="font-size:12px;color:var(--sub);margin-top:6px">点击地图任意处关闭 · 金色圆点是你的位置</div>
+</div></div>
 <!-- ===== 玩法面板 ===== -->
 <div class="modal" id="helpModal">
   <div class="card">
@@ -263,7 +315,9 @@
         <div class="row"><span class="k">鼠标点击</span>对目标地块使用工具</div>
         <div class="row"><span class="k">E</span>打开背包</div>
         <div class="row"><span class="k">M</span>开关小地图</div>
-        <div class="row"><span class="k">Z</span>喂星灵1星尘 · <span class="k">X</span>买水补体力</div>
+        <div class="row"><span class="k">Z</span>喂星灵 · <span class="k">X</span>买水补体力</div>
+        <div class="row"><span class="k">C</span>吃食物 · <span class="k">V</span>开车（需买车） · <span class="k">Q</span>互动建筑</div>
+        <div class="row"><span class="k">6</span>镐（矿区挖矿） · 左上矿区 · 右侧林区 · 北区银行/医院/行政中心/饭店/便利店</div>
       </div>
       <div style="margin-top:12px">
         <span class="elem"><span class="sw" style="background:#ff6b4a"></span>火·烈焰番茄</span>
@@ -305,6 +359,7 @@
       <button class="btn" id="mContinue" style="display:none">继续游戏</button>
       <button class="btn" id="mNet">联机共耕</button>
       <button class="btn" id="mHelp">玩法说明</button>
+      <button class="btn" id="mLogin">账号登录</button>
     </div>
     <div class="features">
       <span class="chip">120×80 大地图</span>
@@ -313,7 +368,7 @@
       <span class="chip">昼夜天气</span>
       <span class="chip">局域网联机</span>
     </div>
-    <div class="foot">本地 / 局域网联机 · 自动存档 · 每个世界独立成就</div>
+    <div class="foot">本地 / 局域网联机 · 自动存档 · 每个世界独立成就 · 邮箱登录开启云端存档与公网联机</div>
   </div>
 </div>
 
@@ -370,6 +425,37 @@
   </div>
 </div>
 
+<!-- ===== 登录面板 ===== -->
+<div class="modal" id="loginModal">
+  <div class="card">
+    <button class="close" data-close="loginModal">×</button>
+    <h2>邮箱登录 <span style="font-size:12px;color:var(--sub);font-weight:500">登录后开启云端存档与公网联机</span></h2>
+    <div id="logStatus" style="font-size:13px;color:var(--sub);margin:8px 0;min-height:18px;line-height:1.6"></div>
+    <div id="logPanelIn">
+      <div class="fgroup"><label>邮箱</label><input type="email" id="logEmail" placeholder="输入你的邮箱，例如 you@example.com"></div>
+      <button class="btn gold" id="logSend" style="width:100%">发送验证码</button>
+      <div class="fgroup" style="margin-top:12px"><label>验证码（邮件里的 6 位数字）</label><input type="text" id="logToken" maxlength="6" placeholder="6 位验证码"></div>
+      <button class="btn primary" id="logDo" style="width:100%">登录</button>
+    </div>
+    <div id="logPanelOut" style="display:none">
+      <div style="font-size:13px;color:var(--gold);margin:10px 0">已登录：<b id="logUser"></b></div>
+      <button class="btn" id="logOut" style="width:100%">退出登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 与人物对话 ===== -->
+<div class="modal" id="chatModal">
+  <div class="card">
+    <button class="close" data-close="chatModal">×</button>
+    <h2 id="chatName">对话</h2>
+    <div id="chatLog" style="background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:10px;margin:10px 0;height:180px;overflow:auto;font-size:13px;line-height:1.7;color:var(--ink)"></div>
+    <div id="chatStatus" style="font-size:12px;color:var(--sub);min-height:16px;margin:6px 0"></div>
+    <div class="fgroup"><input type="text" id="npcChatIn" maxlength="120" placeholder="对 TA 说点什么…"></div>
+    <button class="btn primary" id="chatSend" style="width:100%">发送</button>
+  </div>
+</div>
+
 <!-- ===== 成就 ===== -->
 <div class="modal" id="achModal">
   <div class="card">
@@ -404,6 +490,10 @@ const SEEDS = [
   {id:'star',  name:'星尘花',  el:'star', buy:60, sell:95, grow:5, star:6, col:'#b06cff'},
 ];
 const CROP_ROW = ["tomato","lotus","wheat","potato","star"];
+const DECORSEEDS=[
+  {id:"sapling", name:"树苗", buy:30, type:"tree", tree:"oak"},
+  {id:"flower",  name:"花籽", buy:25, type:"flower"},
+];
 
 // ===== 难度 =====
 const DIFFS = {
@@ -458,9 +548,14 @@ function newGame(opts){
     shake:{x:0,y:0,t:0},
     ach:{planted:0,harvested:0,maxGold:diff.gold,starCollected:0,maxChain:0,chopped:0,tilled:0,petLevel:1,day:1},
     unlocked:{},
+    res:{wood:0,stone:0,ore:0,gem:0,fish:0,bread:0,apple:0,stew:0},
+    owned:{house:false,car:false},
+    bank:{gold:0},
+    drive:false,
     saveKey:'starfield_world_'+rngSeed,
   };
   buildWorld(r);
+  placeNPCs();
   spawnSpirits();
 }
 
@@ -485,6 +580,8 @@ function buildWorld(r){
     state.deco[y]=new Array(mapW).fill(0);
     state.tree[y]=new Array(mapW).fill(null);
     state.rock[y]=new Array(mapW).fill(0);
+    state.ore[y]=new Array(mapW).fill(0);
+    state.sapling[y]=new Array(mapW).fill(null);
     state.element[y]=new Array(mapW).fill(null);
   }
   // 农场区（可耕种的大地块）
@@ -502,12 +599,13 @@ function buildWorld(r){
   for(let x=58;x<=62;x++){ for(let dy=0;dy<3;dy++) state.ter[riverY+dy][x]=TER.BRIDGE; }
   // 小路：农场到桥
   for(let x=42;x<=62;x++){ if(x<58) state.ter[53][x]=TER.PATH; else state.ter[53][x]=TER.PATH; }
-  // 房屋 + 集市
-  state.ter[16][46]=TER.HOUSE; state.ter[16][47]=TER.HOUSE;
-  state.ter[17][46]=TER.HOUSE; state.ter[17][47]=TER.HOUSE;
+  // 小镇：中心广场绿地 + 一圈民居 + 集市
+  for(let y=12;y<=25;y++)for(let x=43;x<=57;x++) if(state.ter[y][x]===TER.FARM) state.ter[y][x]=TER.GRASS;
+  const townHouses=[[46,16],[44,14],[50,14],[54,14],[44,18],[54,18],[46,22],[52,22]];
+  for(const [hx,hy] of townHouses){ state.ter[hy][hx]=TER.HOUSE; state.ter[hy][hx+1]=TER.HOUSE; state.ter[hy+1][hx]=TER.HOUSE; state.ter[hy+1][hx+1]=TER.HOUSE; }
   state.ter[16][45]=TER.GRASS; // 门前
-  state.ter[21][50]=TER.SHOP;
-  state.ter[22][50]=TER.SHOP; state.ter[22][51]=TER.SHOP; state.ter[22][49]=TER.SHOP;
+  const townShops=[[49,21],[56,16]];
+  for(const [sx,sy] of townShops){ state.ter[sy][sx]=TER.SHOP; state.ter[sy][sx+1]=TER.SHOP; state.ter[sy+1][sx]=TER.SHOP; state.ter[sy+1][sx+1]=TER.SHOP; }
   // 元素地：在农场区撒布五色地
   const elIds = ['fire','water','wind','earth','star'];
   for(const el of elIds){
@@ -532,6 +630,30 @@ function buildWorld(r){
     if(state.ter[y][x]!==TER.GRASS) continue;
     if(r()<0.10) state.rock[y][x]=1;
   }
+  // ===== 新城镇扩展：采矿区/林区/服务与配套建筑 =====
+  // 采矿区（左上岩石丘陵，含矿脉）
+  for(let y=2;y<=16;y++)for(let x=2;x<=15;x++){ state.ter[y][x]=TER.GRASS; const n=r(); if(n<0.12) state.ore[y][x]='ore'; else if(n<0.18) state.ore[y][x]='gem'; else if(n<0.30) state.rock[y][x]=1; }
+  // 林区（右侧加密树木）
+  for(let y=2;y<=20;y++)for(let x=64;x<=80;x++){ if(state.ter[y][x]===TER.GRASS && r()<0.35) state.tree[y][x] = r()<0.6?'oak':'pine'; }
+  // 公园（北区绿地 + 喷泉）
+  for(let y=2;y<=9;y++)for(let x=36;x<=41;x++){ if(state.ter[y][x]===TER.FARM) state.ter[y][x]=TER.GRASS; if(r()<0.14) state.tree[y][x]='oak'; }
+  state.fountain={x:38,y:5};
+  // 配套与服务建筑（2x2，置为不可走）
+  const blds = [
+    {x:18,y:2, type:'admin',      name:'行政服务中心'},
+    {x:22,y:2, type:'hospital',   name:'医院'},
+    {x:26,y:2, type:'bank',       name:'银行'},
+    {x:30,y:2, type:'library',    name:'图书馆'},
+    {x:34,y:2, type:'toilet',     name:'公共厕所'},
+    {x:18,y:8, type:'restaurant', name:'饭店'},
+    {x:22,y:8, type:'store',      name:'便利店'},
+    {x:26,y:8, type:'garbage',    name:'垃圾处理厂'},
+    {x:30,y:8, type:'sewage',     name:'污水处理厂'},
+    {x:64,y:22,type:'forest',     name:'林区'},
+    {x:3, y:15,type:'mine',       name:'采矿区'},
+  ];
+  state.bld = blds.map(b=>Object.assign({},b));
+  for(const b of blds){ if(b.type==='forest'||b.type==='mine') continue; for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++) state.ter[b.y+dy][b.x+dx]=TER.HOUSE; }
   // 装饰：草丛/花朵
   const flowers = ['#ffb3d9','#ffd86b','#c9a0ff','#9be7a0'];
   for(let y=0;y<mapH;y++)for(let x=0;x<mapW;x++){
@@ -724,6 +846,45 @@ function drawRock(px,py){
   shadow(px+16,py+25,12,0.2);
   const sp=getSpr('rock');
   if(sp){ const w=40,h=40; ctx.drawImage(sp, px+16-w/2, py+24-h, w, h); }
+}
+function drawOre(px,py,type){
+  shadow(px+16,py+24,11,0.2);
+  ctx.fillStyle= type==='gem' ? '#8f6bff' : '#a8a9b5';
+  ctx.beginPath(); ctx.moveTo(px+16,py+8); ctx.lineTo(px+30,py+20); ctx.lineTo(px+16,py+34); ctx.lineTo(px+2,py+20); ctx.closePath(); ctx.fill();
+  ctx.fillStyle= type==='gem' ? '#c9a0ff' : '#e8e8ee';
+  ctx.beginPath(); ctx.arc(px+16,py+20, type==='gem'?4:3, 0, Math.PI*2); ctx.fill();
+}
+function drawSapling(px,py,age){
+  shadow(px+16,py+26,6,0.18);
+  ctx.strokeStyle='#6b4a2a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px+16,py+26); ctx.lineTo(px+16,py+18); ctx.stroke();
+  ctx.fillStyle= age>1 ? '#4aa03c' : '#7fdc6a';
+  ctx.beginPath(); ctx.arc(px+16,py+15, age>1?7:5, 0, Math.PI*2); ctx.fill();
+}
+function drawBuilding(b,px,py){
+  const cols={admin:'#6a7bd0',hospital:'#e0566a',bank:'#d89a3a',library:'#8a5ac8',toilet:'#4aa3ff',restaurant:'#ff8a5a',store:'#7fd06a',garbage:'#7a8a5a',sewage:'#5a7a8a',forest:'#3a7a3a',mine:'#6a6a72'};
+  const c=cols[b.type]||'#9aa0aa';
+  const x=px, y=py, w=2*TILE, h=2*TILE;
+  shadow(x+w/2, y+h, 38, 0.22);
+  ctx.fillStyle='#efe7d8'; ctx.fillRect(x+4,y+22,w-8,h-22);
+  ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(x,y+22); ctx.lineTo(x+w/2,y); ctx.lineTo(x+w,y+22); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#6b4a2a'; ctx.fillRect(x+w/2-7,y+h-20,14,20);
+  const tag={admin:'政',hospital:'医',bank:'银',library:'书',toilet:'厕',restaurant:'餐',store:'便',garbage:'垃',sewage:'污',forest:'林',mine:'矿'}[b.type]||'·';
+  ctx.fillStyle=c; ctx.fillRect(x+6,y+26,22,14); ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.fillText(tag, x+17, y+37);
+}
+function drawFountain(){
+  const b=state.fountain; if(!b) return;
+  const px=b.x*TILE, py=b.y*TILE;
+  ctx.fillStyle='#8fb8d8'; ctx.beginPath(); ctx.ellipse(px+16,py+22,17,10,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#cfe6f5'; ctx.beginPath(); ctx.arc(px+16,py+12,9,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#7fd0ff'; ctx.fillRect(px+13,py+6,6,10); ctx.fillStyle='#d8f2ff'; ctx.fillRect(px+15,py+2,2,6);
+}
+function drawCar(px,py,dirX){
+  const offx=dirX<0?-6:(dirX>0?6:0);
+  shadow(px+offx,py+22,12,0.22);
+  ctx.fillStyle='#e0566a'; ctx.fillRect(px-13+offx,py+8,26,14);
+  ctx.fillStyle='#c23a4a'; ctx.fillRect(px-8+offx,py+5,16,7);
+  ctx.fillStyle='#2a2a30';
+  ctx.beginPath(); ctx.arc(px-7+offx,py+22,3,0,Math.PI*2); ctx.arc(px+7+offx,py+22,3,0,Math.PI*2); ctx.fill();
 }
 
 // ===== 地块（耕种）=====
@@ -923,12 +1084,17 @@ function render(){
       if(ter===TER.SHOP) drawShop(tx*TILE,ty*TILE);
     }
   }
+  // 新建筑（银行/医院/行政中心/饭店/便利店等）
+  for(const b of state.bld||[]){ if(b.type==='forest'||b.type==='mine') continue; drawBuilding(b, b.x*TILE, b.y*TILE); }
+  drawFountain();
   // 树 & 岩石（覆盖排序：按y）
   const objs=[];
   for(let ty=Math.max(0,y0-1);ty<=Math.min(state.mapH-1,y1+1);ty++){
     for(let tx=Math.max(0,x0-1);tx<=Math.min(state.mapW-1,x1+1);tx++){
       if(state.tree[ty][tx]) objs.push({y:ty*TILE+30, f:()=>drawTree(tx*TILE,ty*TILE,state.tree[ty][tx],tx,ty)});
       if(state.rock[ty][tx]) objs.push({y:ty*TILE+26, f:()=>drawRock(tx*TILE,ty*TILE)});
+      if(state.ore[ty][tx]) objs.push({y:ty*TILE+26, f:()=>drawOre(tx*TILE,ty*TILE,state.ore[ty][tx])});
+      if(state.sapling[ty][tx]) objs.push({y:ty*TILE+26, f:()=>drawSapling(tx*TILE,ty*TILE,state.sapling[ty][tx].age)});
     }
   }
   objs.sort((a,b)=>a.y-b.y);
@@ -937,10 +1103,12 @@ function render(){
   // 人物 / 星灵 / 宠物（排序）
   const sprites=[
     {y:p.py+28, f:()=>drawPlayer(px0(),py0())},
+    {y:p.py+30, f:()=>{ if(state.drive&&state.owned.car) drawCar(p.px,p.py+8,p.dir.x); }},
     {y:state.pet.py+20, f:()=>drawPet(state.pet.px-16,state.pet.py-8)},
   ];
   for(const k in remotes){ const r=remotes[k]; sprites.push({y:r.y+28, f:()=>drawRemote(r.x,r.y,r.dirX,r.dirY,k)}); }
   for(const s of state.spirits) if(!s.taken) sprites.push({y:s.ty+16, f:()=>drawSpirit(s)});
+  for(const npc of state.npcs||[]) sprites.push({y:npc.ty*TILE+28, f:()=>drawNpc(npc)});
   sprites.sort((a,b)=>a.y-b.y);
   for(const s of sprites) s.f();
 
@@ -1010,6 +1178,37 @@ function spendEnergy(c){
 }
 function toolFlash(){ state.player.toolFlash=0.28; }
 function fmtTime(m){ m=Math.floor(m); const hh=Math.floor(m/60), mm=m%60; return (hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm; }
+function openMap(){
+  document.getElementById('mapModal').classList.add('open');
+  document.getElementById('bigTime').textContent=fmtTime(state.minute);
+  document.getElementById('bigWea').textContent = state.weather==='rain'?'雨':state.weather==='cloud'?'多云':'晴';
+  drawBigMap();
+}
+function drawBigMap(){
+  const c=document.getElementById('bigmap'); const g=c.getContext('2d');
+  const mw=state.mapW, mh=state.mapH, s=c.width/mw;
+  g.fillStyle='#0a1326'; g.fillRect(0,0,c.width,c.height);
+  for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+    const ter=state.ter[y][x]; let col='#4a9c50';
+    if(ter===TER.WATER) col='#3d7fdd';
+    else if(ter===TER.FARM) col= state.element[y][x]?EL[state.element[y][x]].color:'#8a6a3a';
+    else if(ter===TER.HOUSE) col='#ca7a58';
+    else if(ter===TER.SHOP) col='#c74a3a';
+    else if(ter===TER.BRIDGE||ter===TER.PATH) col='#c9b38a';
+    if(state.tree[y][x]) col='#1f6b2e';
+    if(state.ore[y][x]) col= state.ore[y][x]==='gem'?'#8f6bff':'#a8a9b5';
+    if(state.sapling[y][x]) col='#7fdc6a';
+    g.fillStyle=col; g.fillRect(x*s,y*s,s+0.5,s+0.5);
+  }
+  const L={admin:'行政',hospital:'医院',bank:'银行',library:'图书馆',toilet:'公厕',restaurant:'饭店',store:'便利店',garbage:'垃圾厂',sewage:'污水厂',forest:'林区',mine:'矿区'};
+  g.font='10px sans-serif'; g.textAlign='center';
+  for(const b of state.bld||[]){ const label=L[b.type]; if(!label) continue;
+    const cx=(b.x+1)*s, cy=(b.y+1)*s;
+    g.fillStyle='rgba(0,0,0,0.6)'; g.fillRect(cx-15,cy-5,30,10); g.fillStyle='#fff'; g.fillText(label,cx,cy+3);
+  }
+  const px=(state.player.tx+0.5)*s, py=(state.player.ty+0.5)*s;
+  g.fillStyle='#ffd86b'; g.beginPath(); g.arc(px,py,4,0,Math.PI*2); g.fill(); g.strokeStyle='#fff'; g.lineWidth=1.5; g.stroke();
+}
 
 // ===== 共鸣链 =====
 function cropEl(id){ return SEEDS.find(s=>s.id===id).el; }
@@ -1055,6 +1254,19 @@ function useTool(tx,ty){
     if(!spendEnergy(3)) return;
     pl.watered=true; addPart(tx*TILE+16,ty*TILE+12,'#7fd0ff',8); toolFlash(); syncPlot(tx,ty);
   } else if(tool==='seed'){
+    if(state.selSeed>=SEEDS.length){
+      const dec=DECORSEEDS[state.selSeed-SEEDS.length];
+      if(!dec){ msg('先选择要种的东西'); return; }
+      if(ter!==TER.GRASS){ msg('花草树木要种在草地上'); return; }
+      if(state.tree[ty][tx]||state.sapling[ty][tx]){ msg('这里已经有植物了'); return; }
+      if((state.seedCounts[dec.id]||0)<=0){ msg('没有'+dec.name+'，去集市/便利店买'); return; }
+      if(!spendEnergy(1)) return;
+      state.seedCounts[dec.id]--;
+      if(dec.type==='tree'){ state.sapling[ty][tx]={type:dec.tree,age:0}; if(net&&net.connected) net.send({t:'sapling',tx:tx,ty:ty,v:{type:dec.tree,age:0}}); }
+      else { const dv=2+(Math.floor(Math.random()*4)); state.deco[ty][tx]=dv; if(net&&net.connected) net.send({t:'flower',tx:tx,ty:ty,v:dv}); }
+      addPart(tx*TILE+16,ty*TILE+12,'#7fdc6a',8); toolFlash();
+      msg('种下 '+dec.name); updateHUD(); syncPlot(tx,ty); return;
+    }
     const s=SEEDS[state.selSeed];
     if(!pl||!pl.tilled){ msg('先翻耕土地'); return; }
     if(pl.seed!=null){ msg('这里已种下作物'); return; }
@@ -1088,9 +1300,14 @@ function useTool(tx,ty){
                   : ('收获 '+s.name+' +'+base+'金 +'+s.star+'星尘'));
     updateHUD();
   } else if(tool==='axe'){
-    if(state.tree[ty][tx]){ if(!spendEnergy(4)) return; state.tree[ty][tx]=null; if(net.connected) net.send({t:'tree',tx:tx,ty:ty,v:null}); state.ach.chopped++; checkAchievements(); addPart(tx*TILE+16,ty*TILE+16,'#a9723f',10); msg('砍倒一棵树，获得木材'); toolFlash(); }
-    else if(state.rock[ty][tx]){ if(!spendEnergy(4)) return; state.rock[ty][tx]=0; addPart(tx*TILE+16,ty*TILE+20,'#8d8d92',10); msg('敲碎岩石，获得石材'); toolFlash(); }
+    if(state.tree[ty][tx]){ if(!spendEnergy(4)) return; state.tree[ty][tx]=null; if(net&&net.connected) net.send({t:'tree',tx:tx,ty:ty,v:null}); state.ach.chopped++; checkAchievements(); state.res.wood=(state.res.wood||0)+1; addPart(tx*TILE+16,ty*TILE+16,'#a9723f',10); msg('砍倒一棵树，获得木材 x1'); toolFlash(); }
+    else if(state.rock[ty][tx]){ if(!spendEnergy(4)) return; state.rock[ty][tx]=0; if(net&&net.connected) net.send({t:'rock',tx:tx,ty:ty,v:0}); state.res.stone=(state.res.stone||0)+1; addPart(tx*TILE+16,ty*TILE+20,'#8d8d92',10); msg('敲碎岩石，获得石材 x1'); toolFlash(); }
     else msg('没有可砍伐的东西');
+  } else if(tool==='pick'){
+    if(state.ore[ty][tx]){ if(!spendEnergy(3)) return; const o=state.ore[ty][tx]; state.ore[ty][tx]=null; if(net&&net.connected) net.send({t:'ore',tx:tx,ty:ty,v:null}); if(o==='gem'){state.res.gem=(state.res.gem||0)+1; addPart(tx*TILE+16,ty*TILE+18,'#8f6bff',12); msg('挖到星辉宝石 x1！');} else if(o==='ore'){state.res.ore=(state.res.ore||0)+1; addPart(tx*TILE+16,ty*TILE+18,'#a8a9b5',10); msg('挖到矿石 x1');} else {state.res.stone=(state.res.stone||0)+1; addPart(tx*TILE+16,ty*TILE+18,'#8d8d92',10); msg('挖到石材 x1');} state.ach.mined=(state.ach.mined||0)+1; checkAchievements(); toolFlash(); }
+    else if(state.rock[ty][tx]){ if(!spendEnergy(3)) return; state.rock[ty][tx]=0; if(net&&net.connected) net.send({t:'rock',tx:tx,ty:ty,v:0}); state.res.stone=(state.res.stone||0)+1; addPart(tx*TILE+16,ty*TILE+20,'#8d8d92',10); msg('敲碎岩石，获得石材 x1'); toolFlash(); }
+    else if(state.tree[ty][tx]){ msg('挖矿用镐，砍树请用斧头'); }
+    else msg('这里没有可开采的矿脉');
   }
   updateHUD();
 }
@@ -1144,6 +1361,13 @@ function sleepNight(){
     }
   }
   recomputeResonance();
+  state.bank.gold = Math.round(state.bank.gold*1.01);
+  if(state.ach.registered) state.gold += 20;
+  for(let y=0;y<state.mapH;y++)for(let x=0;x<state.mapW;x++){
+    const sp=state.sapling[y][x]; if(!sp) continue;
+    sp.age++;
+    if(sp.age>=3){ state.tree[y][x]=sp.type; state.sapling[y][x]=null; }
+  }
   petAutoWater();
   save();
   msg('第 '+state.day+' 天清晨 · '+state.weather);
@@ -1158,12 +1382,18 @@ document.addEventListener('keydown',e=>{
   if(e.key==='e'||e.key==='E'){ toggleBackpack(); }
   if(e.key==='z'||e.key==='Z') feedPet();
   if(e.key==='x'||e.key==='X') buyEnergy();
+  if(e.key==='f'||e.key==='F') openChatNear();
+  if(e.key==='q'||e.key==='Q') interactBuilding();
+  if(e.key==='c'||e.key==='C') eatFood();
+  if(e.key==='v'||e.key==='V') toggleDrive();
   if(e.key==='m'||e.key==='M'){ mmOpen=!mmOpen; document.getElementById('minimap').style.display=mmOpen?'block':'none'; }
-  if(['1','2','3','4','5'].includes(e.key)){ setTool(['hoe','water','seed','harvest','axe'][+e.key-1]); }
+  if(['1','2','3','4','5','6'].includes(e.key)){ setTool(['hoe','water','seed','harvest','axe','pick'][+e.key-1]); }
   if(e.key==='Tab'){ e.preventDefault(); cycleSeed(1); }
 });
 document.addEventListener('keyup',e=>{ keys[e.key]=false; });
 
+document.getElementById('minimap').addEventListener('click',()=>{ openMap(); });
+document.getElementById('bigmap').addEventListener('click',()=>{ document.getElementById('mapModal').classList.remove('open'); });
 cv.addEventListener('mousedown',e=>{
   const r=cv.getBoundingClientRect();
   const mx=e.clientX-r.left, my=e.clientY-r.top;
@@ -1193,7 +1423,7 @@ function updateMove(dt){
   p.toolFlash=Math.max(0,(p.toolFlash||0)-dt);
   if(p.moving){
     p.movingT+=dt;
-    const k=Math.min(1, p.movingT/0.13);
+    const k=Math.min(1, p.movingT/(state.drive&&state.owned.car?0.06:0.13));
     p.px=Math.round( (p.tx*(1-k)+p.mtx*k)*10 )/10*TILE;
     p.py=Math.round( (p.ty*(1-k)+p.mty*k)*10 )/10*TILE;
     p.idleT=0;
@@ -1206,14 +1436,15 @@ function setTool(t){ state.selTool=t;
   document.querySelectorAll('.tool').forEach(el=>el.classList.toggle('on', el.dataset.tool===t));
 }
 function selectSeed(i){ state.selSeed=i; setTool('seed'); renderSeeds(); }
-function cycleSeed(d){ state.selSeed=(state.selSeed+d+SEEDS.length)%SEEDS.length; setTool('seed'); renderSeeds(); }
+function cycleSeed(d){ const L=SEEDS.length+DECORSEEDS.length; state.selSeed=(state.selSeed+d+L)%L; setTool('seed'); renderSeeds(); }
 
 function renderSeeds(){
   const row=document.getElementById('seedRow');
   row.innerHTML='';
-  SEEDS.forEach((s,i)=>{
+  const ALL=SEEDS.concat(DECORSEEDS);
+  ALL.forEach((s,i)=>{
     const d=document.createElement('div'); d.className='seed'+(state.selSeed===i?' on':'');
-    d.innerHTML='<span class="skey">'+(i+1)+'</span><div class="sdot" style="background:'+EL[s.el].color+'"></div>'+
+    d.innerHTML='<span class="skey">'+(i+1)+'</span><div class="sdot" style="background:'+(s.el?EL[s.el].color:'#7fdc6a')+'"></div>'+
       '<div class="sname">'+s.name+'</div><div class="sprice">'+s.buy+'金</div>'+
       '<span class="count">'+(state.seedCounts[s.id]||0)+'</span>';
     d.title='点击选中，按 [3] 种植';
@@ -1234,8 +1465,9 @@ function nearShop(){
 function openShop(){ document.getElementById('shopModal').classList.add('open'); renderShop(); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function renderShop(){
-  const list=document.getElementById('shopList');
-  list.innerHTML='';
+  const list=document.getElementById('shopList'); list.innerHTML='';
+  const sec='<div style="font-weight:800;color:var(--gold);margin:12px 0 4px">';
+  list.innerHTML+=sec+'作物种子</div>';
   for(const s of SEEDS){
     const row=document.createElement('div'); row.className='shoprow';
     row.innerHTML='<div class="info"><div class="nm"><span class="el" style="background:'+EL[s.el].color+'">'+EL[s.el].name+'</span> '+s.name+'</div>'+
@@ -1245,7 +1477,86 @@ function renderShop(){
     btn.onclick=()=>{ if(state.gold<s.buy){ msg('金币不足'); return; } state.gold-=s.buy; state.seedCounts[s.id]=(state.seedCounts[s.id]||0)+1; updateHUD(); renderShop(); msg('购入 '+s.name); };
     list.appendChild(row);
   }
+  list.innerHTML+=sec+'物资（种花草树）</div>';
+  for(const d of DECORSEEDS){
+    const row=document.createElement('div'); row.className='shoprow';
+    row.innerHTML='<div class="info"><div class="nm">'+d.name+'</div><div class="meta">买入 '+d.buy+'金 · 种在草地上，树苗 3 天长成树</div></div>'+
+      '<button class="btn gold small">购买</button>';
+    const btn=row.querySelector('button');
+    btn.onclick=()=>{ if(state.gold<d.buy){ msg('金币不足'); return; } state.gold-=d.buy; state.seedCounts[d.id]=(state.seedCounts[d.id]||0)+1; updateHUD(); renderShop(); msg('购入 '+d.name); };
+    list.appendChild(row);
+  }
+  list.innerHTML+=sec+'不动产</div>';
+  list.innerHTML+='<div class="shoprow"><div class="info"><div class="nm">农场小屋</div><div class="meta">3000 金 · 买下后可回屋休息回满体力</div></div>'+
+    (state.owned.house?'<button class="btn star small" disabled>已拥有</button>':'<button class="btn gold small" onclick="buyHouse()">购买</button>')+'</div>';
+  list.innerHTML+='<div class="shoprow"><div class="info"><div class="nm">小车</div><div class="meta">6000 金 · 按 V 开车，移动更快</div></div>'+
+    (state.owned.car?'<button class="btn star small" disabled>已拥有</button>':'<button class="btn gold small" onclick="buyCar()">购买</button>')+'</div>';
+  list.innerHTML+=sec+'卖出（换金币）</div>';
+  const PR={wood:5,stone:4,ore:12,gem:60,bread:8,apple:12,stew:22};
+  const NM={wood:'木材',stone:'石材',ore:'矿石',gem:'星辉宝石',bread:'面包',apple:'苹果',stew:'炖菜'};
+  for(const k in PR){
+    const c=state.res[k]||0;
+    list.innerHTML+='<div class="shoprow"><div class="info"><div class="nm">'+NM[k]+'</div><div class="meta">×'+c+' · 单价 '+PR[k]+'金</div></div>'+
+      '<button class="btn gold small" onclick="sellResource(\''+k+'\')">卖出</button></div>';
+  }
 }
+function buyHouse(){ if(state.gold<3000){ msg('金币不足'); return; } state.gold-=3000; state.owned.house=true; msg('买下了农场小屋！靠近小屋按 Q 可休息回满体力'); updateHUD(); renderShop(); }
+function buyCar(){ if(state.gold<6000){ msg('金币不足'); return; } state.gold-=6000; state.owned.car=true; msg('买到了小车！按 V 上车开得更快'); updateHUD(); renderShop(); }
+function sellResource(kind){ const PR={wood:5,stone:4,ore:12,gem:60,bread:8,apple:12,stew:22}; const n=state.res[kind]||0; if(n<=0){ msg('没有可卖的'); return; } const v=PR[kind]; state.gold+=n*v; state.res[kind]=0; msg('卖出 '+n+' 个，得 '+n*v+' 金'); updateHUD(); renderShop(); }
+function eatFood(){ const r=state.res;
+  if(r.stew>0){r.stew--; state.energy=Math.min(state.maxEnergy,state.energy+45); msg('吃了炖菜，体力 +45');}
+  else if(r.apple>0){r.apple--; state.energy=Math.min(state.maxEnergy,state.energy+25); msg('吃了苹果，体力 +25');}
+  else if(r.bread>0){r.bread--; state.energy=Math.min(state.maxEnergy,state.energy+18); msg('吃了面包，体力 +18');}
+  else { msg('没有食物，去饭店/便利店买'); return; } updateHUD(); }
+function buyFood(id,buy,nm){ if(state.gold<buy){ msg('金币不足'); return; } state.gold-=buy; state.res[id]=(state.res[id]||0)+1; msg('购入 '+nm); renderStore(); updateHUD(); }
+function toggleDrive(){ if(!state.owned.car){ msg('还没有车，去集市买一辆'); return; } state.drive=!state.drive; msg(state.drive?'已上车，开得更快（V 下车）':'已下车'); }
+function nearBuilding(){ const p=state.player; for(const b of state.bld||[]){ if(b.type==='forest'||b.type==='mine') continue; const d=Math.abs(p.tx-(b.x+1))+Math.abs(p.ty-(b.y+1)); if(d<=2) return b; } return null; }
+function interactBuilding(){ const b=nearBuilding(); if(!b){ msg('附近没有可互动的建筑'); return; }
+  if(b.type==='bank') openBank(); else if(b.type==='hospital') openHospital(); else if(b.type==='admin') openAdmin();
+  else if(b.type==='restaurant') openRestaurant(); else if(b.type==='store') openStore();
+  else if(b.type==='park') restPark(); else if(b.type==='library') openLibrary();
+  else if(b.type==='garbage') openGarbage(); else if(b.type==='sewage') openSewage(); else if(b.type==='toilet') useToilet();
+  else msg('这里没什么可互动的'); }
+function openBank(){ document.getElementById('bankModal').classList.add('open'); renderBank(); }
+function renderBank(){ document.getElementById('bankBody').innerHTML=
+  '<div style="font-weight:800;color:var(--gold)">储蓄 · 每天 +1% 利息</div>'+
+  '<div style="margin:8px 0">当前存款：<b>'+state.bank.gold+'</b> 金</div>'+
+  '<button class="btn gold small" onclick="bankDep(100)">存 100</button> <button class="btn gold small" onclick="bankDep(500)">存 500</button>'+
+  ' <button class="btn star small" onclick="bankWit(100)">取 100</button> <button class="btn star small" onclick="bankWit(500)">取 500</button>'+
+  '<div style="margin-top:8px;font-size:12px;color:var(--sub)">存款每日清晨结算利息，取款不扣手续费。</div>'; }
+function bankDep(v){ if(state.gold<v){ msg('金币不足'); return; } state.gold-=v; state.bank.gold+=v; renderBank(); updateHUD(); }
+function bankWit(v){ if(state.bank.gold<v){ msg('存款不足'); return; } state.bank.gold-=v; state.gold+=v; renderBank(); updateHUD(); }
+function openHospital(){ document.getElementById('hospitalModal').classList.add('open'); document.getElementById('hospBody').innerHTML=
+  '<div style="font-weight:800;color:#e0566a">医院 · 看诊回满体力</div>'+
+  '<div style="margin:8px 0">当前体力 '+state.energy+'/'+state.maxEnergy+' · 看诊费 50 金</div>'+
+  '<button class="btn gold small" onclick="healMe()">看诊（50金）</button>'; }
+function healMe(){ if(state.gold<50){ msg('金币不足'); return; } state.gold-=50; state.energy=state.maxEnergy; msg('看诊完毕，体力回满！'); updateHUD(); document.getElementById('hospitalModal').classList.remove('open'); }
+function openAdmin(){ document.getElementById('adminModal').classList.add('open'); renderAdmin(); }
+function renderAdmin(){ document.getElementById('adminBody').innerHTML=
+  '<div style="font-weight:800;color:#6a7bd0">行政服务中心</div>'+
+  (state.ach.registered
+    ? '<div style="margin:8px 0;color:var(--gold)">您已登记，每天清晨自动领取 20 金补助。</div>'
+    : '<div style="margin:8px 0">登记入住，领取 200 金安置金，并享受每日补助。</div><button class="btn gold small" onclick="registerAdmin()">登记入住（+200金）</button>'); }
+function registerAdmin(){ if(state.ach.registered){ msg('已登记'); return; } state.ach.registered=true; state.gold+=200; renderAdmin(); updateHUD(); msg('登记成功，领取 200 金安置金！'); }
+function openRestaurant(){ document.getElementById('restModal').classList.add('open'); document.getElementById('restBody').innerHTML=
+  '<div style="font-weight:800;color:#ff8a5a">饭店 · 厨娘香的手艺</div>'+
+  '<div style="margin:8px 0"><button class="btn gold small" onclick="buyMeal(1)">简单套餐 25金（+35体力）</button></div>'+
+  '<div><button class="btn gold small" onclick="buyMeal(2)">大餐 60金（+80体力）</button></div>'; }
+function buyMeal(k){ const c=k===2?60:25, g=k===2?80:35; if(state.gold<c){ msg('金币不足'); return; } state.gold-=c; state.energy=Math.min(state.maxEnergy,state.energy+g); msg('饱餐一顿，体力 +'+g); updateHUD(); }
+function openStore(){ document.getElementById('storeModal').classList.add('open'); renderStore(); }
+function renderStore(){ const list=document.getElementById('storeList'); list.innerHTML='';
+  list.innerHTML+='<div style="font-weight:800;color:var(--gold)">便利店 · 日用与干粮</div>';
+  const goods=[['bread','面包',20,18],['apple','苹果',15,25],['stew','炖菜',40,45]];
+  goods.forEach(([id,nm,buy,heal])=>{
+    list.innerHTML+='<div class="shoprow"><div class="info"><div class="nm">'+nm+'</div><div class="meta">买入 '+buy+'金 · 吃 +'+heal+' 体力（按 C 吃）</div></div>'+
+      '<button class="btn gold small" onclick="buyFood(\''+id+'\','+buy+',\''+nm+'\')">购买</button></div>';
+  });
+  list.innerHTML+='<div style="margin-top:10px"><button class="btn star small" onclick="buyEnergy()">水壶补水 15金（+30体力）</button></div>'; }
+function restPark(){ if(state.lastPark===state.day){ msg('公园每天只能休息一次，明天再来'); return; } state.lastPark=state.day; state.energy=state.maxEnergy; msg('在公园长椅上休息，体力回满！'); updateHUD(); }
+function openLibrary(){ const tips=['星灵夜里来，喂它星尘会帮你浇水。','作物连成共鸣链，收割有金币加成。','右上角矿区有矿石，镐能挖出宝石。','体力不够去公园或医院回满。','砍树得木材，挖矿得矿石，都能卖钱。']; msg(tips[state.day%tips.length]); }
+function openGarbage(){ let g=0; const r=state.res; g+=(r.wood||0)*5+(r.stone||0)*4+(r.ore||0)*12+(r.gem||0)*60; r.wood=r.stone=r.ore=r.gem=0; if(g>0){ state.gold+=g; msg('垃圾处理厂回收了资源，得 '+g+' 金'); } else msg('没有可回收的资源'); updateHUD(); }
+function openSewage(){ msg('污水处理厂在辛勤工作，小镇更干净了。'); }
+function useToilet(){ state.energy=Math.min(state.maxEnergy,state.energy+5); msg('神清气爽！体力 +5（全镇最实用的建筑）'); updateHUD(); }
 function buyEnergy(){
   if(state.gold<15){ msg('金币不足'); return; }
   state.gold-=15; state.energy=Math.min(state.maxEnergy,state.energy+30); msg('喝了杯水，体力 +30'); updateHUD();
@@ -1313,7 +1624,8 @@ function openAchievements(){
 
 // ===== 联机（WebRTC 对等，局域网/P2P，免服务器）=====
 /* ===== 云端部署配置（可选）：填 Supabase 项目 URL 与 anon key 后，自动开启云端存档与公网联机 ===== */
-const SB={ url:'', anon:'' };
+const SB={ url:'https://liykjoakityfizsoakhr.supabase.co', anon:'sb_publishable__8pXoD3gYuy7zZe-2u24jQ_xMQ_odOT' };
+const AI={ proxy:'', model:'' };  // 填 Cloudflare Worker 地址后启用 AI 对话（密钥由 Worker 保管）
 function sbEnabled(){ return !!(SB.url && SB.anon); }
 let sbClient=null, sbChannel=null;
 function sbConnect(room){
@@ -1329,7 +1641,7 @@ function sbSend(o){
   try{ if(sbChannel && sbChannel.state==='joined') sbChannel.send({type:'broadcast', event:'farm', payload:o}); }catch(e){}
 }
 function cloudSave(){
-  if(!sbEnabled() || !state) return;
+  if(!sbEnabled() || !sbUser || !state) return;
   try{
     fetch(SB.url+'/rest/v1/saves', {
       method:'POST',
@@ -1338,17 +1650,160 @@ function cloudSave(){
     }).catch(function(){});
   }catch(e){}
 }
+let sbAuth=null, sbUser=null;
+function ensureAuth(){ if(!sbEnabled()) return null; if(!sbAuth){ try{ sbAuth=supabase.createClient(SB.url, SB.anon); }catch(e){ return null; } } return sbAuth; }
+function refreshAuthUI(){
+  const acc=document.getElementById("accN"); if(acc) acc.textContent = sbUser ? ("√ "+sbUser.email) : "未登录";
+  const m=document.getElementById("mLogin"); if(m) m.textContent = sbUser ? ("账号："+sbUser.email) : "账号登录";
+  const pin=document.getElementById("logPanelIn"), pout=document.getElementById("logPanelOut"), lu=document.getElementById("logUser");
+  if(pin) pin.style.display = sbUser?"none":"block";
+  if(pout) pout.style.display = sbUser?"block":"none";
+  if(lu && sbUser) lu.textContent = sbUser.email;
+}
+function initAuth(){
+  const a=ensureAuth(); if(!a){ refreshAuthUI(); return; }
+  try{ a.auth.getSession().then(({data})=>{ if(data && data.session) sbUser=data.session.user; refreshAuthUI(); }).catch(()=>{}); }catch(e){}
+  try{ a.auth.onAuthStateChange((ev,sess)=>{ sbUser = (sess && sess.user) ? sess.user : null; refreshAuthUI(); }); }catch(e){}
+  refreshAuthUI();
+}
+function openLogin(){
+  document.getElementById("loginModal").classList.add("open");
+  const st=document.getElementById("logStatus");
+  st.textContent = sbUser ? ("已登录："+sbUser.email) : (sbEnabled()?"输入邮箱，点“发送验证码”":"尚未配置 Supabase，无法登录");
+}
+function sendLoginCode(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase，无法登录"; return; }
+  const email=document.getElementById("logEmail").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ st.textContent="邮箱格式不对，请检查"; return; }
+  st.textContent="正在发送验证码…";
+  a.auth.signInWithOtp({ email }).then(({error})=>{ st.textContent = error ? ("发送失败："+(error.message||"请重试")) : ("验证码已发送到 "+email+"，请查收（垃圾箱也看看）"); }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function doLogin(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase，无法登录"; return; }
+  const email=document.getElementById("logEmail").value.trim(), token=document.getElementById("logToken").value.trim();
+  if(!token){ st.textContent="请输入邮件里的验证码"; return; }
+  st.textContent="正在验证…";
+  a.auth.verifyOtp({ email, token, type:"email" }).then(({error})=>{
+    if(error){ st.textContent="登录失败："+(error.message||"验证码错误"); return; }
+    st.textContent="登录成功！云端存档与公网联机已开启";
+    setTimeout(()=>document.getElementById("loginModal").classList.remove("open"), 600);
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function logoutAccount(){ const a=ensureAuth(); if(a) a.auth.signOut().then(()=>{}).catch(()=>{}); }
+// ===== 可与 AI 对话的 NPC =====
+const NPCS=[
+  {id:'traveler', name:'旅人·星尘', persona:'你是《星尘农场》里的旅人·星尘，温和好奇的旅行者，喜欢听玩家讲农场故事，也会分享远方的见闻。回答简短亲切，用中文。', anchor:[20,38], fallback:['远方有片会发光的星海，听说连起来能听懂风的话。','你这片田地看着就让人安心，我可以坐会儿吗？','我见过会跳舞的麦田，但你的农场最特别。']},
+  {id:'elder', name:'老农夫·苍', persona:'你是《星尘农场》里的老农夫苍，务农一生，经验丰富，话不多但句句在理，会指点玩家种田、浇水、共振。回答简短实在，用中文。', anchor:[65,23], fallback:['浇水要看天，锄地要等露水干，种田急不得。','作物连成片会共鸣，金币和星尘都能多些。','我年轻时以为农场只是种地，后来才懂是种日子。']},
+  {id:'florist', name:'花店主·棠', persona:'你是《星尘农场》里的花店老板娘棠，温柔爱美，喜欢花朵，会分享配色和种花的乐趣。回答轻快可爱，用中文。', anchor:[50,23], fallback:['花要分颜色种，开成一片才最好看。','夜里星尘花开的时候，比星星还美。','这朵花的颜色，像你今晚的心情。']},
+  {id:'keeper', name:'星灵使·澜', persona:'你是《星尘农场》里的星灵使者澜，懂星灵的脾气，守护灵界秩序，神秘又友善。回答带一点神秘感，用中文。', anchor:[15,35], fallback:['星灵夜里才来，它们怕阳光，却爱你手中的星尘。','你把星尘喂给伙伴，灵界都记住了你的名字。','有些祝福，是农场自己说出来的。']},
+  {id:'mayor', name:'镇长·砚', persona:'你是《星尘农场》小镇的镇长砚，稳重有威望，关心每个村民和农场发展，会介绍小镇、夸奖玩家的贡献。回答简短得体，用中文。', anchor:[19,4], fallback:['小镇欢迎你，这里的每一片田都会记住你的努力。','集市的热闹，靠的是像你这样肯下地的农夫。','有什么需要，镇长院的门随时为你开。']},
+  {id:'fisher', name:'渔夫·潮', persona:'你是《星尘农场》里的渔夫潮，常年住在河边，熟悉河水的脾气，话里带着水的节奏，会讲鱼和天气的故事。回答简短随性，用中文。', anchor:[30,51], fallback:['河神喜欢安静，鱼只上爱钓鱼的钩。','看天就知道鱼往哪儿游，今天是个好天。','水不骗人，人也不该骗水。']},
+  {id:'smith', name:'铁匠·火', persona:'你是《星尘农场》小镇的铁匠火，沉默寡言却手艺精湛，聊工具和农具有独到见解，偶尔冒出冷幽默。回答简短，用中文。', anchor:[6,15], fallback:['好锄头要趁热打，田也要趁时候翻。','我这锤子认得每一把好工具。','铁硬，但比不过把地种熟的手。']},
+  {id:'cook', name:'厨娘·香', persona:'你是《星尘农场》小镇的厨娘香，热情开朗，最爱把刚收的作物做成好吃的，会聊菜谱和收获的喜悦。回答轻快，用中文。', anchor:[19,10], fallback:['刚摘的菜最香，拿来我厨房准没错。','丰收的日子，全镇都闻得到香味。','吃饱了才有力气把田种好。']},
+  {id:'librarian', name:'图书员·墨', persona:'你是《星尘农场》小镇的图书管理员墨，安静博学，记得每一本书和每一条农谚，会分享种植与星灵的旧知识。回答温和，用中文。', anchor:[31,4], fallback:['古籍里说，星尘是大地记得的月光。','书页夹着旧年的种子，也夹着旧时光。','种地这件事，书里写得比人话周全。']},
+  {id:'banker', name:'行长·钱', persona:'你是《星尘农场》银行的出纳员钱掌柜，精明可靠，帮村民存钱生息。回答简短友好，用中文。', anchor:[27,4], fallback:['银子存进来，日子才踏实。','利息虽薄，胜在安稳。','把钱交给我，准没错。']},
+  {id:'doctor', name:'医师·白', persona:'你是《星尘农场》医院的医师白，温柔严谨，关心村民健康，会劝人劳逸结合。回答温和，用中文。', anchor:[23,4], fallback:['累坏了可得来找我，身体要紧。','体力没了就歇歇，明天再干。','农场再忙，也别忘了吃饭睡觉。']},
+  {id:'clerk',  name:'店长·曦', persona:'你是《星尘农场》便利店老板曦，机灵热情，店里什么都有，卖柴米油盐和日用品。回答轻快，用中文。', anchor:[23,10], fallback:['便利店里应有尽有，随到随买。','面包和水壶，赶集必备。','缺什么就来我这，保准有。']},
+  {id:'ward',   name:'环卫·净', persona:'你是《星尘农场》的环卫工净，默默把镇子打扫得干干净净，管理公厕和垃圾污水。回答质朴，用中文。', anchor:[35,4], fallback:['镇子干净，人心才亮堂。','垃圾要分类，污水要净化，这是本分。','别看这活不起眼，缺了可不行。']},
+  {id:'miner',  name:'矿工·岩', persona:'你是《星尘农场》采矿区的矿工岩，壮实直爽，懂矿石和宝石，爱聊地下的宝藏。回答爽朗，用中文。', anchor:[8,14], fallback:['矿脉有好几层，越深越出宝。','挖到星辉宝石，一镐顶三镐。','地下的宝贝，就等懂它的人。']},
+  {id:'gardener', name:'园丁·青', persona:'你是《星尘农场》公园的园丁青，爱花爱树爱清净，会分享种树养花的门道。回答恬淡，用中文。', anchor:[38,6], fallback:['树荫底下好乘凉，种树是留给以后的事。','花要浇对水，树要晒对光。','公园是镇子的肺，得有人守着。']},
+];
+function placeNPCs(){
+  state.npcs=[]; const used={};
+  for(const n of NPCS){
+    let found=false;
+    for(let rad=0;rad<=6 && !found;rad++){
+      for(let dy=-rad;dy<=rad && !found;dy++)for(let dx=-rad;dx<=rad && !found;dx++){
+        if(Math.max(Math.abs(dx),Math.abs(dy))!==rad) continue;
+        const tx=n.anchor[0]+dx, ty=n.anchor[1]+dy;
+        if(tx<0||ty<0||tx>=state.mapW||ty>=state.mapH) continue;
+        if(state.ter[ty][tx]!==TER.GRASS) continue;
+        if(state.tree[ty][tx]||state.rock[ty][tx]) continue;
+        const k=tx+','+ty; if(used[k]) continue;
+        if(tx===20&&ty===38) continue;
+        used[k]=1; state.npcs.push(Object.assign({}, n, {tx:tx, ty:ty, chat:[]})); found=true;
+      }
+    }
+    if(!found) state.npcs.push(Object.assign({}, n, {tx:n.anchor[0], ty:n.anchor[1], chat:[]}));
+  }
+}
+function drawNpc(npc){
+  const cx=npc.tx*TILE+16, cy=npc.ty*TILE+26;
+  const sp=getSpr('player_front');
+  shadow(cx,cy+7,9,0.22);
+  if(sp){ const w=50,h=50; ctx.drawImage(sp, cx-w/2, cy+8-h, w, h); }
+  const col=npc.id==='traveler'?'#7fdc6a':npc.id==='elder'?'#d89a3a':npc.id==='florist'?'#ff9ad5':'#b06cff';
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.globalAlpha=0.85;
+  ctx.beginPath(); ctx.arc(cx,cy-10,21,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+  ctx.lineWidth=3; ctx.strokeStyle='rgba(15,15,30,0.75)';
+  ctx.strokeText(npc.name, cx, cy-32);
+  ctx.fillStyle='#ffd86b'; ctx.fillText(npc.name, cx, cy-32);
+  const p=state.player;
+  if(p && Math.abs(p.tx-npc.tx)+Math.abs(p.ty-npc.ty)<=2){
+    ctx.font='bold 12px sans-serif'; ctx.lineWidth=4;
+    ctx.strokeStyle='rgba(15,15,30,0.8)'; ctx.strokeText('对话 [F]', cx, cy+46);
+    ctx.fillStyle='#fff'; ctx.fillText('对话 [F]', cx, cy+46);
+  }
+}
+let curNpc=null;
+function openChatNear(){
+  const p=state.player; let best=null, bd=99;
+  for(const npc of state.npcs||[]){ const d=Math.abs(p.tx-npc.tx)+Math.abs(p.ty-npc.ty); if(d<=2 && d<bd){ bd=d; best=npc; } }
+  if(!best) return;
+  curNpc=best;
+  if(!best.chat || best.chat.length===0){ best.chat=[{who:'npc', text:best.fallback[0]}]; }
+  document.getElementById('chatName').textContent=best.name;
+  renderChat(); document.getElementById('chatModal').classList.add('open');
+}
+function renderChat(){
+  const el=document.getElementById('chatLog'); el.innerHTML='';
+  (curNpc&&curNpc.chat||[]).forEach(m=>{
+    const d=document.createElement('div');
+    d.style.cssText='margin:5px 0;'+(m.who==='me'?'text-align:right;color:#7fd6ff':'color:#ffd86b');
+    d.textContent=(m.who==='me'?'你：':'')+m.text; el.appendChild(d);
+  });
+  el.scrollTop=el.scrollHeight;
+}
+async function sendNpcChat(){
+  const inp=document.getElementById('npcChatIn'), st=document.getElementById('chatStatus');
+  const t=inp.value.trim(); if(!t||!curNpc) return;
+  curNpc.chat.push({who:'me', text:t}); inp.value=''; renderChat();
+  st.textContent='TA 正在思考…';
+  const msgs=curNpc.chat.map(m=>({role:m.who==='me'?'user':'assistant', content:m.text}));
+  const reply=await aiReply(curNpc, msgs);
+  curNpc.chat.push({who:'npc', text:reply}); renderChat(); st.textContent='';
+}
+async function aiReply(npc, msgs){
+  if(AI.proxy){
+    try{
+      const res=await fetch(AI.proxy,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npc:{id:npc.id,name:npc.name,persona:npc.persona},messages:msgs,model:AI.model||''})});
+      const data=await res.json();
+      if(data && data.reply) return data.reply;
+    }catch(e){}
+    return '（AI 暂时连不上，稍后再试）';
+  }
+  const i=((npc.__i=(npc.__i||0)+1));
+  return npc.fallback[(i-1)%npc.fallback.length]+'（接入 AI 后我能说更多话哦）';
+}
 let remotes={};
 function netStatus(s){ document.getElementById('netStatus').textContent=s; }
 function addRemote(name){ if(name && !remotes[name]) remotes[name]={x:0,y:0,dirX:0,dirY:1,seed:(name.length||0)%5}; }
 function removeRemote(name){ delete remotes[name]; }
 function moveRemote(name,x,y,dx,dy){ const r=remotes[name]; if(r){ r.x=x; r.y=y; r.dirX=dx; r.dirY=dy; } }
-function makeSnap(){ return {seed:rngSeed, plot:state.plot, pet:state.pet}; }
+function makeSnap(){ return {seed:rngSeed, plot:state.plot, pet:state.pet, ore:state.ore, sapling:state.sapling, tree:state.tree, rock:state.rock}; }
 function loadSnap(s){
   if(!s) return;
   if(s.seed && s.seed!==rngSeed){ rngSeed=s.seed; buildWorld(mulberry(rngSeed)); }
+  placeNPCs();
   if(s.plot) state.plot=s.plot;
   if(s.pet) state.pet=s.pet;
+  if(s.ore) state.ore=s.ore;
+  if(s.sapling) state.sapling=s.sapling;
+  if(s.tree) state.tree=s.tree;
+  if(s.rock) state.rock=s.rock;
   recomputeResonance(); updateHUD();
 }
 function setPlotSync(tx,ty,plot){ const k=plotKey(tx,ty); if(plot) state.plot[k]=plot; else delete state.plot[k]; recomputeResonance(); }
@@ -1363,6 +1818,7 @@ function updateNetPlayers(){
 const net = {
   pc:null, ch:null, role:null, connected:false,
   host(){
+    if(sbEnabled() && !sbUser){ netStatus("公网/云端联机需要先登录账号（右上角账号面板）"); return; }
     if(sbEnabled()){
       this.role='host'; this.connected=true;
       const room=document.getElementById('netIn').value.trim()||('room'+Math.floor(Math.random()*90000+10000));
@@ -1383,6 +1839,7 @@ const net = {
     netStatus('房间已创建。把下方【邀请码】发给朋友；朋友生成【应答码】后，你粘贴到输入框点“连接（主机）”');
   },
   join(offerStr){
+    if(sbEnabled() && !sbUser){ netStatus("公网/云端联机需要先登录账号（右上角账号面板）"); return; }
     if(sbEnabled()){
       this.role='guest'; this.connected=true;
       sbConnect(document.getElementById('netIn').value.trim());
@@ -1417,6 +1874,10 @@ const net = {
     else if(m.t==='pos'){ moveRemote(m.name,m.x,m.y,m.dirX,m.dirY); }
     else if(m.t==='plot'){ setPlotSync(m.tx,m.ty,m.plot); }
     else if(m.t==='tree'){ if(m.ty>=0&&m.tx>=0) state.tree[m.ty][m.tx]=m.v; }
+    else if(m.t==='ore'){ if(m.ty>=0&&m.tx>=0) state.ore[m.ty][m.tx]=m.v; }
+    else if(m.t==='sapling'){ if(m.ty>=0&&m.tx>=0) state.sapling[m.ty][m.tx]=m.v; }
+    else if(m.t==='flower'){ if(m.ty>=0&&m.tx>=0) state.deco[m.ty][m.tx]=m.v; }
+    else if(m.t==='rock'){ if(m.ty>=0&&m.tx>=0) state.rock[m.ty][m.tx]=m.v; }
     else if(m.t==='leave'){ removeRemote(m.name); updateNetPlayers(); }
   },
   close(){
@@ -1441,6 +1902,8 @@ function save(){
       day:state.day, minute:state.minute, weather:state.weather,
       gold:state.gold, star:state.star, energy:state.energy,
       seedCounts:state.seedCounts, plot:state.plot, pet:state.pet,
+      res:state.res, owned:state.owned, bank:state.bank,
+      ore:state.ore, sapling:state.sapling,
       diff:state.diff, name:state.name, skin:state.player.skin, hair:state.player.hair, hat:state.player.hat,
       ach:state.ach, unlocked:state.unlocked,
     }));
@@ -1471,6 +1934,11 @@ function loadSave(){
     if(d.skin!=null){ state.player.skin=d.skin; state.player.hair=d.hair||0; state.player.hat=d.hat||0; }
     if(d.ach) state.ach=d.ach;
     if(d.unlocked) state.unlocked=d.unlocked;
+    if(d.res) state.res=Object.assign(state.res,d.res);
+    if(d.owned) state.owned=d.owned;
+    if(d.bank) state.bank=d.bank;
+    if(d.ore) state.ore=d.ore;
+    if(d.sapling) state.sapling=d.sapling;
     recomputeResonance();
   }catch(e){}
 }
@@ -1521,17 +1989,31 @@ function frame(ts){
 
 // ===== HUD =====
 function updateClockUI(){
-  document.getElementById('timeN').textContent=fmtTime(state.minute);
   document.getElementById('dayN').textContent=state.day;
   const w=state.weather;
-  document.getElementById('weaN').textContent= w==='rain'?'雨':w==='cloud'?'多云':'晴';
-  document.getElementById('weaIc').style.background= w==='rain'?'#5b83c8':w==='cloud'?'#9fb3d8':'#8fd0ff';
+  const wstr= w==='rain'?'雨':w==='cloud'?'多云':'晴';
+  const mm=document.getElementById('mmInfo');
+  if(mm) mm.textContent=fmtTime(state.minute)+' · '+wstr;
+  const mp=document.getElementById('mapModal');
+  if(mp&&mp.classList.contains('open')){
+    document.getElementById('bigTime').textContent=fmtTime(state.minute);
+    document.getElementById('bigWea').textContent=wstr;
+    drawBigMap();
+  }
 }
 function updateHUD(){
   document.getElementById('goldN').textContent=state.gold;
   document.getElementById('starN').textContent=state.star;
   document.getElementById('ebar').querySelector('i').style.width=(state.energy/state.maxEnergy*100)+'%';
   document.getElementById('btnPet').textContent='星灵 Lv.'+state.pet.level+'（'+state.pet.xp+'/'+state.pet.need+'）';
+  document.getElementById('resWood').textContent=state.res.wood||0;
+  document.getElementById('resOre').textContent=state.res.ore||0;
+  document.getElementById('resStone').textContent=state.res.stone||0;
+  document.getElementById('resGem').textContent=state.res.gem||0;
+  document.getElementById('resFood').textContent=(state.res.bread||0)+(state.res.apple||0)+(state.res.stew||0);
+  const own=document.getElementById('ownLine');
+  own.textContent = (state.owned.house?' 🏠':'') + (state.owned.car?' 🚗':'');
+  document.getElementById('driveLine').textContent = state.drive&&state.owned.car ? '· 驾车中' : '';
   renderSeeds();
 }
 
@@ -1619,6 +2101,7 @@ function startNewFromChar(){
 function init(){
   resize();
   bindUI();
+  initAuth();
   buildCharOptions();
   let hasSave=false; try{ hasSave=(JSON.parse(localStorage.getItem('starfield_worlds')||'[]')).length>0; }catch(e){}
   document.getElementById('mContinue').style.display = hasSave?'block':'none';
@@ -1645,6 +2128,15 @@ function bindUI(){
   document.getElementById('netDoAnswer').addEventListener('click',()=>{ const c=document.getElementById('netIn').value.trim(); if(!c) return netStatus('先粘贴朋友发来的应答码'); net.accept(c); });
   document.getElementById('netCopy').addEventListener('click',()=>{ const v=document.getElementById('netOut').value; if(!v) return netStatus('还没有可复制的码'); (navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>netStatus('已复制')).catch(()=>{ netOut.focus(); netOut.select(); netStatus('请手动全选复制'); }); });
   document.getElementById('netReset').addEventListener('click',()=>net.close());
+  document.getElementById('mLogin').addEventListener('click',openLogin);
+  document.getElementById('accSeg').addEventListener('click',openLogin);
+  document.getElementById('logSend').addEventListener('click',sendLoginCode);
+  document.getElementById('logDo').addEventListener('click',doLogin);
+  document.getElementById('logOut').addEventListener('click',logoutAccount);
+  document.getElementById('chatSend').addEventListener('click',sendNpcChat);
+  document.getElementById('npcChatIn').addEventListener('keydown',(e)=>{ if(e.key==='Enter') sendNpcChat(); });
+  document.getElementById('logToken').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('logEmail').addEventListener('keydown',(e)=>{ if(e.key==='Enter') sendLoginCode(); });
 }
 window.addEventListener('load', init);
 
