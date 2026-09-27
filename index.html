@@ -161,6 +161,14 @@
   .fgroup label{display:block; font-size:13px; color:var(--sub); margin-bottom:7px; font-weight:700;}
   .fgroup input[type=text]{width:100%; padding:9px 12px; border-radius:10px; border:2px solid var(--line);
     background:var(--panel); color:var(--ink); font-size:15px;}
+  .fgroup input[type=email], .fgroup input[type=password]{width:100%; padding:10px 12px; border-radius:10px;
+    border:2px solid var(--line); background:var(--panel); color:var(--ink); font-size:15px;
+    transition:border-color .15s, box-shadow .15s;}
+  .fgroup input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,216,107,.16);}
+  .authrow{display:flex; gap:8px; align-items:stretch;}
+  .authrow input{flex:1; min-width:0;}
+  .authtip{font-size:12px; color:var(--sub); line-height:1.6; margin:0 0 4px;}
+  .btn.primary{background:linear-gradient(180deg,#ffd86b,#e2a83f); color:#3a2c05; border-color:#caa03a; font-weight:800;}
   .swatches{display:flex; gap:9px; flex-wrap:wrap;}
   .swatch{width:34px; height:34px; border-radius:9px; cursor:pointer; border:3px solid rgba(255,255,255,.18);}
   .swatch.on{border-color:#fff; box-shadow:0 0 0 2px #ffd86b;}
@@ -398,28 +406,53 @@
   </div>
 </div>
 
-<!-- ===== 联机面板 ===== -->
+<!-- ===== 联机面板（我的世界式服务器列表）===== -->
 <div class="modal" id="netModal">
   <div class="card">
     <button class="close" data-close="netModal">×</button>
-    <h2>联机共耕 <span style="font-size:12px;color:var(--sub);font-weight:500">局域网 / 对等 P2P · 免服务器</span></h2>
-    <div style="font-size:13px;color:var(--sub);margin:8px 0;line-height:1.7">
-      一人<b style="color:var(--gold)">创建房间</b>把邀请码发给朋友；朋友<b style="color:var(--gold)">加入</b>生成应答码发回；主机粘贴应答码即连上。同一 Wi-Fi 局域网效果最佳。<br>已配置 Supabase 时，直接在下方输入框填<b style="color:var(--gold)">云端房间号</b>即可公网联机。
-    </div>
-    <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
-      <button class="btn gold" id="netHost">创建房间（主机）</button>
-      <button class="btn" id="netJoin">加入房间（客人）</button>
-      <button class="btn small" id="netReset" style="margin-left:auto">断开</button>
-    </div>
+    <h2>多人联机 <span style="font-size:12px;color:var(--sub);font-weight:500">公共服务器 · 局域网 · P2P</span></h2>
     <div id="netStatus" style="font-size:13px;color:var(--sub);margin:8px 0;min-height:18px;line-height:1.6"></div>
-    <div class="fgroup"><label>邀请码 / 应答码（发给对方）</label>
-      <textarea id="netOut" rows="4" readonly placeholder="点“创建房间”或“加入房间”后，这里会生成要发给对方的码" style="width:100%;background:var(--panel);border:2px solid var(--line);border-radius:10px;color:var(--ink);padding:8px;font-family:Consolas,monospace;font-size:11px"></textarea></div>
-    <div class="fgroup"><label>对方发来的码（粘贴到此处）</label>
-      <textarea id="netIn" rows="4" placeholder="粘贴朋友发来的邀请码 / 应答码" style="width:100%;background:var(--panel);border:2px solid var(--line);border-radius:10px;color:var(--ink);padding:8px;font-family:Consolas,monospace;font-size:11px"></textarea></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn small" id="netCopy">复制上方的码</button>
-      <button class="btn small" id="netDoJoin">用粘贴的码加入</button>
-      <button class="btn small star" id="netDoAnswer">用粘贴的码连接（主机）</button>
+    <div id="netTabs" style="display:flex;gap:6px;margin:10px 0">
+      <button class="btn gold" id="ntPublic" style="flex:1">公共服务器</button>
+      <button class="btn" id="ntCreate" style="flex:1">创建服务器</button>
+      <button class="btn" id="ntLan" style="flex:1">局域网 / P2P</button>
+    </div>
+
+    <div id="subPublic">
+      <div style="display:flex;gap:8px;align-items:center;margin:6px 0">
+        <button class="btn small gold" id="srvRefresh" style="flex:none">刷新列表</button>
+        <span style="font-size:12px;color:var(--sub)">全网在线的公共农场，点「加入」即可一起耕种</span>
+      </div>
+      <div id="srvList" style="display:flex;flex-direction:column;gap:8px;margin-top:6px;max-height:40vh;overflow:auto"></div>
+    </div>
+
+    <div id="subCreate" style="display:none">
+      <div class="authtip">把<b style="color:var(--gold)">自己当前的农场</b>发布成公共服务器，全网玩家都能在列表里找到并加入。需要先登录账号，且需保持本页面开着（你是主机）。</div>
+      <div class="fgroup"><label>服务器名称</label><input type="text" id="srvName" maxlength="18" placeholder="比如：星尘公共农场"></div>
+      <div class="fgroup"><label>服务器简介</label><input type="text" id="srvDesc" maxlength="30" placeholder="一句话介绍你的农场"></div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:10px">世界种子：<b id="srvSeed">—</b> · 难度：<b id="srvDiff">—</b></div>
+      <button class="btn gold" id="srvCreate" style="width:100%">发布公共服务器</button>
+      <button class="btn" id="srvStop" style="width:100%;margin-top:8px;display:none">停止并下线服务器</button>
+    </div>
+
+    <div id="subLan" style="display:none">
+      <div style="font-size:13px;color:var(--sub);line-height:1.7">
+        一人<b style="color:var(--gold)">创建房间</b>把邀请码发给朋友；朋友<b style="color:var(--gold)">加入</b>生成应答码发回；主机粘贴应答码即连上。<br>已登录时也可直接填<b style="color:var(--gold)">云端房间号</b>公网联机。
+      </div>
+      <div style="display:flex;gap:10px;margin:10px 0;flex-wrap:wrap">
+        <button class="btn gold" id="netHost">创建房间（主机）</button>
+        <button class="btn" id="netJoin">加入房间（客人）</button>
+        <button class="btn small" id="netReset" style="margin-left:auto">断开</button>
+      </div>
+      <div class="fgroup"><label>邀请码 / 应答码（发给对方）</label>
+        <textarea id="netOut" rows="3" readonly placeholder="点“创建房间”或“加入房间”后生成" style="width:100%;background:var(--panel);border:2px solid var(--line);border-radius:10px;color:var(--ink);padding:8px;font-family:Consolas,monospace;font-size:11px"></textarea></div>
+      <div class="fgroup"><label>对方发来的码（粘贴）</label>
+        <textarea id="netIn" rows="3" placeholder="粘贴邀请码 / 应答码 / 房间号" style="width:100%;background:var(--panel);border:2px solid var(--line);border-radius:10px;color:var(--ink);padding:8px;font-family:Consolas,monospace;font-size:11px"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn small" id="netCopy">复制上方的码</button>
+        <button class="btn small" id="netDoJoin">用粘贴的码加入</button>
+        <button class="btn small star" id="netDoAnswer">用粘贴的码连接（主机）</button>
+      </div>
     </div>
     <div id="netPlayers" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--sub)"></div>
   </div>
@@ -449,14 +482,14 @@
         <button class="btn" id="pwForgot" style="width:100%;margin-top:8px">忘记密码？发重置邮件</button>
       </div>
       <div id="subReg" style="display:none">
+        <div class="authtip">填入邮箱 → 点发送验证码 → 收到验证码后即可创建账号</div>
         <div class="fgroup"><label>邮箱</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
-        <button class="btn gold" id="regSend" style="width:100%">发送注册验证码</button>
-        <div id="regCodeWrap" style="display:none">
-          <div class="fgroup" style="margin-top:12px"><label>验证码（邮件里的 6 位数字）</label><input type="text" id="regToken" maxlength="6" placeholder="6 位验证码"></div>
-          <div class="fgroup"><label>密码（至少 6 位）</label><input type="password" id="regPass" placeholder="设置登录密码"></div>
-          <div class="fgroup"><label>确认密码</label><input type="password" id="regPass2" placeholder="再输一遍"></div>
-          <button class="btn primary" id="regDo" style="width:100%">验证并完成注册</button>
+        <div class="fgroup"><label>验证码（邮箱收取，最多 10 位）</label>
+          <div class="authrow"><input type="text" id="regToken" maxlength="10" placeholder="输入邮件里的验证码"><button class="btn gold" id="regSend" style="flex:none">发送验证码</button></div>
         </div>
+        <div class="fgroup"><label>登录密码（至少 6 位）</label><input type="password" id="regPass" placeholder="设置登录密码"></div>
+        <div class="fgroup"><label>确认密码</label><input type="password" id="regPass2" placeholder="再输一遍"></div>
+        <button class="btn primary" id="regDo" style="width:100%; margin-top:8px">验证并创建账号</button>
       </div>
       <div id="subCode" style="display:none">
         <div class="fgroup"><label>邮箱</label><input type="email" id="logEmail" placeholder="you@example.com"></div>
@@ -1728,10 +1761,11 @@ function sendSignupCode(){
   const email=document.getElementById("regEmail").value.trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ st.textContent="邮箱格式不对，请检查"; return; }
   st.textContent="正在发送注册验证码…";
+  const btn=document.getElementById('regSend'), st0=btn?btn.textContent:'';
   a.auth.signInWithOtp({ email, shouldCreateUser:true }).then(({error})=>{
     if(error){ st.textContent="发送失败："+(error.message||"请重试"); return; }
-    document.getElementById('regCodeWrap').style.display='block';
-    st.textContent="验证码已发送到 "+email+"，请输入验证码并设置密码（垃圾箱也看看）";
+    st.textContent="验证码已发送到 "+email+"，请查收（垃圾箱也看看）";
+    let n=60; if(btn){ btn.disabled=true; const iv=setInterval(()=>{ n--; btn.textContent=(n>0)?("重发("+n+"s)"):"重新发送"; if(n<=0){ clearInterval(iv); btn.disabled=false; btn.textContent=st0; } },1000); }
   }).catch(()=>{ st.textContent="网络错误，请重试"; });
 }
 function doRegister(){
@@ -1985,7 +2019,7 @@ const net = {
   send(o){ if(this.ch && this.ch.readyState==='open') this.ch.send(JSON.stringify(o)); sbSend(o); },
   onMsg(str){
     let m; try{ m=JSON.parse(str); }catch(e){ return; }
-    if(m.t==='hello'){ addRemote(m.name); if(this.role==='guest') setTimeout(()=>this.send({t:'snap', snap:makeSnap()}),150); updateNetPlayers(); }
+    if(m.t==='hello'){ addRemote(m.name); setTimeout(()=>this.send({t:'snap', snap:makeSnap()}),150); updateNetPlayers(); }
     else if(m.t==='snap'){ loadSnap(m.snap); }
     else if(m.t==='pos'){ moveRemote(m.name,m.x,m.y,m.dirX,m.dirY); }
     else if(m.t==='plot'){ setPlotSync(m.tx,m.ty,m.plot); }
@@ -2009,7 +2043,103 @@ function openNet(){
   netStatus('');
   document.getElementById('netOut').value='';
   updateNetPlayers();
+  switchNetTab('public');
+  loadPublicServers();
 }
+function switchNetTab(which){
+  const map={public:'subPublic',create:'subCreate',lan:'subLan'};
+  const tabs={public:'ntPublic',create:'ntCreate',lan:'ntLan'};
+  for(const k in map){ const el=document.getElementById(map[k]); if(el) el.style.display=(k===which)?'block':'none'; }
+  for(const k in tabs){ const el=document.getElementById(tabs[k]); if(el) el.classList.toggle('gold', k===which); }
+  if(which==='create' || which==='public'){
+    const cb=document.getElementById('srvCreate');
+    if(!(sbEnabled() && sbUser)){
+      netStatus('公共服务器需要登录账号（右上角「账号登录」）——未登录不能创建或加入公共服务器');
+      if(cb) cb.disabled=true;
+    } else { if(cb) cb.disabled=false; }
+  }
+}
+let pub={ room:null, hb:null };
+function svEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+async function loadPublicServers(){
+  const el=document.getElementById('srvList'); if(!el) return;
+  if(!sbEnabled()){ el.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px">未配置 Supabase，无法使用公共服务器</div>'; return; }
+  if(!sbUser){
+    el.innerHTML='<div style="text-align:center;padding:18px"><div style="color:#ffd86b;font-size:14px;font-weight:800;margin-bottom:8px">公共服务器需要登录账号</div><div style="color:var(--sub);font-size:12px;margin-bottom:12px">未登录只能访客游玩，不能使用公共服务器。</div><button class="btn gold" id="srvGoLogin">去登录</button></div>';
+    const g=document.getElementById('srvGoLogin'); if(g) g.addEventListener('click',openLogin);
+    return;
+  }
+  el.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px">正在刷新…</div>';
+  try{
+    const res=await fetch(SB.url+'/rest/v1/lobbies?select=*&order=updated_at.desc',{headers:{'apikey':SB.anon,'Authorization':'Bearer '+SB.anon}});
+    const rows=await res.json();
+    const now=Date.now();
+    if(!rows || !rows.length){ el.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px">还没有公共服务器。点「创建服务器」发布一个吧</div>'; return; }
+    let html='';
+    rows.forEach(r=>{
+      const age=now-(new Date(r.updated_at).getTime()||0);
+      const online = (r.online!==false) && age < 45000;
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid '+(online?'#3a7a44':'var(--line)')+'"'
+        +(online?(' data-id="'+svEsc(r.id)+'"'):'')+'>'
+        +'<div style="width:11px;height:11px;border-radius:50%;flex:none;background:'+(online?'#43d373':'#6d7a96')+'"></div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-weight:800;color:var(--ink);font-size:14px">'+svEsc(r.name||'未命名服务器')+'</div>'
+        +'<div style="color:var(--sub);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+svEsc(r.desc||'')+'</div>'
+        +'<div style="color:var(--sub);font-size:10px;margin-top:2px">种子 '+svEsc(r.seed||'')+' · '+svEsc(r.diff||'')+' · 房主 '+svEsc(r.host||'')+'</div>'
+        +'</div>'
+        +'<div style="flex:none;font-size:12px;color:'+(online?'#ffd86b':'var(--sub)')+'">'+(r.players||1)+' 人</div>'
+        +'<button class="btn small gold" style="flex:none"'+(online?'':' disabled')+'>加入</button>'
+        +'</div>';
+    });
+    el.innerHTML=html;
+  }catch(e){
+    el.innerHTML='<div style="color:var(--sub);font-size:13px;text-align:center;padding:14px">刷新失败（网络或配置问题）</div>';
+  }
+}
+function createPublicServer(){
+  if(!sbEnabled()){ netStatus('未配置 Supabase，无法创建公共服务器'); return; }
+  if(!sbUser){ netStatus('创建公共服务器需要先登录账号'); return; }
+  if(!state){ netStatus('请先开始一个游戏世界再发布'); return; }
+  const name=document.getElementById('srvName').value.trim()||('星尘公共农场'+Math.floor(Math.random()*100));
+  const desc=document.getElementById('srvDesc').value.trim()||'欢迎来我的农场一起耕种';
+  const room='room'+Math.floor(Math.random()*900000+100000);
+  net.role='host'; net.connected=true;
+  sbConnect(room);
+  net.send({t:'hello', name:state.name});
+  setTimeout(()=>{ net.send({t:'snap', snap:makeSnap()}); },350);
+  updateNetPlayers();
+  netStatus('公共服务器已发布！保持页面开着，玩家即可在列表里找到并加入');
+  pub.room=room; if(pub.hb) clearInterval(pub.hb); pub.hb=setInterval(srvHeartbeat,15000); srvHeartbeat();
+  document.getElementById('srvStop').style.display='block';
+}
+async function srvHeartbeat(){
+  if(!pub.room || !state) return;
+  try{
+    const players=1+Object.keys(remotes).length;
+    await fetch(SB.url+'/rest/v1/lobbies',{method:'POST',
+      headers:{'apikey':SB.anon,'Authorization':'Bearer '+SB.anon,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({id:pub.room, name:document.getElementById('srvName').value.trim()||'星尘公共农场', desc:document.getElementById('srvDesc').value.trim()||'', host:state.name, seed:String(rngSeed), diff:(state.diff&&state.diff.name)||'', players:players, online:true})});
+  }catch(e){}
+}
+async function stopPublicServer(){
+  if(pub.hb){ clearInterval(pub.hb); pub.hb=null; }
+  if(pub.room){ try{ await fetch(SB.url+'/rest/v1/lobbies?id=eq.'+encodeURIComponent(pub.room),{method:'PATCH',headers:{'apikey':SB.anon,'Authorization':'Bearer '+SB.anon,'Content-Type':'application/json'},body:JSON.stringify({online:false})}); }catch(e){} }
+  pub.room=null;
+  document.getElementById('srvStop').style.display='none';
+  netStatus('服务器已下线');
+}
+function joinPublicServer(id){
+  if(!id) return;
+  if(sbEnabled() && !sbUser){ netStatus('加入公共服务器需要先登录账号'); return; }
+  if(!state) startGame({diff:'normal'});
+  net.role='guest'; net.connected=true;
+  sbConnect(id);
+  net.send({t:'hello', name:state.name});
+  updateNetPlayers();
+  netStatus('已加入公共服务器，正在同步世界…');
+  loadPublicServers();
+}
+window.addEventListener('beforeunload',function(){ if(pub.hb) clearInterval(pub.hb); });
 
 function save(){
   try{
@@ -2242,6 +2372,13 @@ function bindUI(){
   document.getElementById('mHelp').addEventListener('click',()=>document.getElementById('helpModal').classList.add('open'));
   document.getElementById('chGo').addEventListener('click',startNewFromChar);
   document.getElementById('chSeedRand').addEventListener('click',()=>{ document.getElementById('chSeed').value=Math.random()*999999|0; });
+  document.getElementById('ntPublic').addEventListener('click',()=>switchNetTab('public'));
+  document.getElementById('ntCreate').addEventListener('click',()=>{ const g=document.getElementById('srvSeed'); if(g) g.textContent=state?String(rngSeed):'—'; const d=document.getElementById('srvDiff'); if(d) d.textContent=(state&&state.diff)?state.diff.name:'—'; switchNetTab('create'); });
+  document.getElementById('ntLan').addEventListener('click',()=>switchNetTab('lan'));
+  document.getElementById('srvRefresh').addEventListener('click',loadPublicServers);
+  document.getElementById('srvCreate').addEventListener('click',createPublicServer);
+  document.getElementById('srvStop').addEventListener('click',stopPublicServer);
+  document.getElementById('srvList').addEventListener('click',e=>{ const row=e.target.closest('[data-id]'); if(!row) return; joinPublicServer(row.getAttribute('data-id')); });
   document.getElementById('netHost').addEventListener('click',()=>{ if(!state) startGame({diff:'normal'}); net.host(); });
   document.getElementById('netJoin').addEventListener('click',()=>{ if(!state) startGame({diff:'normal'}); netStatus('请在下方输入框粘贴主机的【邀请码】，再点“用粘贴的码加入”'); });
   document.getElementById('netDoJoin').addEventListener('click',()=>{ const c=document.getElementById('netIn').value.trim(); if(!c) return netStatus('先粘贴主机的邀请码'); net.join(c); });
