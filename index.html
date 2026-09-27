@@ -368,7 +368,7 @@
       <span class="chip">昼夜天气</span>
       <span class="chip">局域网联机</span>
     </div>
-    <div class="foot">本地 / 局域网联机 · 自动存档 · 每个世界独立成就 · 邮箱登录开启云端存档与公网联机</div>
+    <div class="foot">访客可直接游玩（进度不保存）· 登录后自动保存与云端存档 · 局域网联机 · 每个世界独立成就</div>
   </div>
 </div>
 
@@ -429,17 +429,47 @@
 <div class="modal" id="loginModal">
   <div class="card">
     <button class="close" data-close="loginModal">×</button>
-    <h2>邮箱登录 <span style="font-size:12px;color:var(--sub);font-weight:500">登录后开启云端存档与公网联机</span></h2>
+    <h2>账号中心 <span style="font-size:12px;color:var(--sub);font-weight:500">登录后开启云端存档与公网联机</span></h2>
     <div id="logStatus" style="font-size:13px;color:var(--sub);margin:8px 0;min-height:18px;line-height:1.6"></div>
-    <div id="logPanelIn">
-      <div class="fgroup"><label>邮箱</label><input type="email" id="logEmail" placeholder="输入你的邮箱，例如 you@example.com"></div>
-      <button class="btn gold" id="logSend" style="width:100%">发送验证码</button>
-      <div class="fgroup" style="margin-top:12px"><label>验证码（邮件里的 6 位数字）</label><input type="text" id="logToken" maxlength="6" placeholder="6 位验证码"></div>
-      <button class="btn primary" id="logDo" style="width:100%">登录</button>
-    </div>
     <div id="logPanelOut" style="display:none">
       <div style="font-size:13px;color:var(--gold);margin:10px 0">已登录：<b id="logUser"></b></div>
       <button class="btn" id="logOut" style="width:100%">退出登录</button>
+      <button class="btn primary" id="logSetPass" style="width:100%;margin-top:8px">设置新密码</button>
+    </div>
+    <div id="logPanelIn">
+      <div id="logTabs" style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="btn gold" id="tabPass" style="flex:1">密码登录</button>
+        <button class="btn" id="tabReg" style="flex:1">注册账号</button>
+        <button class="btn" id="tabCode" style="flex:1">验证码登录</button>
+      </div>
+      <div id="subPass">
+        <div class="fgroup"><label>邮箱</label><input type="email" id="pwEmail" placeholder="you@example.com"></div>
+        <div class="fgroup"><label>密码</label><input type="password" id="pwPass" placeholder="你的登录密码"></div>
+        <button class="btn gold" id="pwLogin" style="width:100%">登录</button>
+        <button class="btn" id="pwForgot" style="width:100%;margin-top:8px">忘记密码？发重置邮件</button>
+      </div>
+      <div id="subReg" style="display:none">
+        <div class="fgroup"><label>邮箱</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+        <button class="btn gold" id="regSend" style="width:100%">发送注册验证码</button>
+        <div id="regCodeWrap" style="display:none">
+          <div class="fgroup" style="margin-top:12px"><label>验证码（邮件里的 6 位数字）</label><input type="text" id="regToken" maxlength="6" placeholder="6 位验证码"></div>
+          <div class="fgroup"><label>密码（至少 6 位）</label><input type="password" id="regPass" placeholder="设置登录密码"></div>
+          <div class="fgroup"><label>确认密码</label><input type="password" id="regPass2" placeholder="再输一遍"></div>
+          <button class="btn primary" id="regDo" style="width:100%">验证并完成注册</button>
+        </div>
+      </div>
+      <div id="subCode" style="display:none">
+        <div class="fgroup"><label>邮箱</label><input type="email" id="logEmail" placeholder="you@example.com"></div>
+        <button class="btn gold" id="logSend" style="width:100%">发送验证码</button>
+        <div class="fgroup" style="margin-top:12px"><label>验证码（邮件里的 6 位数字）</label><input type="text" id="logToken" maxlength="6" placeholder="6 位验证码"></div>
+        <button class="btn primary" id="logDo" style="width:100%">验证码登录</button>
+      </div>
+      <div id="subSet" style="display:none">
+        <div style="font-size:12px;color:var(--sub);margin-bottom:8px">设置新密码（至少 6 位）</div>
+        <div class="fgroup"><label>新密码</label><input type="password" id="setPass1" placeholder="新密码"></div>
+        <div class="fgroup"><label>确认新密码</label><input type="password" id="setPass2" placeholder="再输一遍"></div>
+        <button class="btn primary" id="setPassDo" style="width:100%">保存新密码</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1665,11 +1695,97 @@ function initAuth(){
   try{ a.auth.getSession().then(({data})=>{ if(data && data.session) sbUser=data.session.user; refreshAuthUI(); }).catch(()=>{}); }catch(e){}
   try{ a.auth.onAuthStateChange((ev,sess)=>{ sbUser = (sess && sess.user) ? sess.user : null; refreshAuthUI(); }); }catch(e){}
   refreshAuthUI();
+  handleRecoveryHash();
 }
 function openLogin(){
   document.getElementById("loginModal").classList.add("open");
   const st=document.getElementById("logStatus");
-  st.textContent = sbUser ? ("已登录："+sbUser.email) : (sbEnabled()?"输入邮箱，点“发送验证码”":"尚未配置 Supabase，无法登录");
+  if(sbUser){ st.textContent="已登录："+sbUser.email; return; }
+  st.textContent = sbEnabled() ? "选择一种方式登录或注册账号" : "尚未配置 Supabase，无法登录";
+  switchLogTab('pass');
+}
+function switchLogTab(which){
+  const map={pass:'subPass',reg:'subReg',code:'subCode',set:'subSet'};
+  const tabs={pass:'tabPass',reg:'tabReg',code:'tabCode'};
+  for(const k in map){ const el=document.getElementById(map[k]); if(el) el.style.display=(k===which)?'block':'none'; }
+  for(const k in tabs){ const el=document.getElementById(tabs[k]); if(el) el.classList.toggle('gold', k===which); }
+}
+function doPasswordLogin(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase，无法登录"; return; }
+  const email=document.getElementById("pwEmail").value.trim(), pw=document.getElementById("pwPass").value;
+  if(!email||!pw){ st.textContent="请输入邮箱和密码"; return; }
+  st.textContent="正在登录…";
+  a.auth.signInWithPassword({ email, password: pw }).then(({error})=>{
+    if(error){ st.textContent="登录失败："+(error.message||"邮箱或密码不对"); return; }
+    st.textContent="登录成功！云端存档与公网联机已开启";
+    setTimeout(()=>document.getElementById("loginModal").classList.remove("open"), 600);
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function sendSignupCode(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase，无法注册"; return; }
+  const email=document.getElementById("regEmail").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ st.textContent="邮箱格式不对，请检查"; return; }
+  st.textContent="正在发送注册验证码…";
+  a.auth.signInWithOtp({ email, shouldCreateUser:true }).then(({error})=>{
+    if(error){ st.textContent="发送失败："+(error.message||"请重试"); return; }
+    document.getElementById('regCodeWrap').style.display='block';
+    st.textContent="验证码已发送到 "+email+"，请输入验证码并设置密码（垃圾箱也看看）";
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function doRegister(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase，无法注册"; return; }
+  const email=document.getElementById("regEmail").value.trim(), token=document.getElementById("regToken").value.trim();
+  const pw=document.getElementById("regPass").value, pw2=document.getElementById("regPass2").value;
+  if(!token){ st.textContent="请输入邮件里的验证码"; return; }
+  if(pw.length<6){ st.textContent="密码至少 6 位"; return; }
+  if(pw!==pw2){ st.textContent="两次输入的密码不一致"; return; }
+  st.textContent="正在验证并注册…";
+  a.auth.verifyOtp({ email, token, type:"email" }).then(({error})=>{
+    if(error){ st.textContent="注册失败："+(error.message||"验证码错误"); return; }
+    a.auth.updateUser({ password: pw }).then(({error:uerr})=>{
+      st.textContent = uerr ? ("账号已建立，但设置密码失败："+(uerr.message||"")) : "注册成功！已登录，云端存档与联机已开启";
+      if(!uerr) setTimeout(()=>document.getElementById("loginModal").classList.remove("open"), 600);
+    });
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function doForgot(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase"; return; }
+  const email=document.getElementById("pwEmail").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ st.textContent="先输入正确的邮箱再重置"; return; }
+  st.textContent="正在发送重置邮件…";
+  a.auth.resetPasswordForEmail(email).then(({error})=>{
+    st.textContent = error ? ("发送失败："+(error.message||"请重试")) : ("重置邮件已发送到 "+email+"，点邮件里的链接设置新密码");
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function doSetPassword(){
+  const a=ensureAuth(), st=document.getElementById("logStatus");
+  if(!a){ st.textContent="尚未配置 Supabase"; return; }
+  const p1=document.getElementById("setPass1").value, p2=document.getElementById("setPass2").value;
+  if(p1.length<6){ st.textContent="新密码至少 6 位"; return; }
+  if(p1!==p2){ st.textContent="两次输入的新密码不一致"; return; }
+  st.textContent="正在保存…";
+  a.auth.updateUser({ password: p1 }).then(({error})=>{
+    st.textContent = error ? ("保存失败："+(error.message||"请重试")) : "新密码已保存！";
+  }).catch(()=>{ st.textContent="网络错误，请重试"; });
+}
+function handleRecoveryHash(){
+  try{
+    const h=location.hash||'';
+    if(!h || h.indexOf('access_token')<0) return;
+    const params=new URLSearchParams(h.substring(1));
+    const access_token=params.get('access_token'), refresh_token=params.get('refresh_token');
+    const type=params.get('type');
+    const a=ensureAuth(); if(!a) return;
+    a.auth.setSession({access_token:access_token, refresh_token:refresh_token}).then(()=>{
+      history.replaceState(null,'',location.pathname+location.search);
+      openLogin();
+      if(type==='recovery'||type==='invite'){ switchLogTab('set'); const st=document.getElementById("logStatus"); if(st) st.textContent="请设置你的新密码"; }
+    }).catch(()=>{});
+  }catch(e){}
 }
 function sendLoginCode(){
   const a=ensureAuth(), st=document.getElementById("logStatus");
@@ -1897,6 +2013,10 @@ function openNet(){
 
 function save(){
   try{
+    if(!(sbEnabled() && sbUser)){
+      if(!state._guestWarned){ state._guestWarned=1; try{ msg('访客模式：进度不会保存，登录账号后自动保存并云端同步'); }catch(e){} }
+      return;
+    }
     localStorage.setItem(state.saveKey, JSON.stringify({
       rng:rngSeed,
       day:state.day, minute:state.minute, weather:state.weather,
@@ -2133,10 +2253,28 @@ function bindUI(){
   document.getElementById('logSend').addEventListener('click',sendLoginCode);
   document.getElementById('logDo').addEventListener('click',doLogin);
   document.getElementById('logOut').addEventListener('click',logoutAccount);
+  document.getElementById('tabPass').addEventListener('click',()=>switchLogTab('pass'));
+  document.getElementById('tabReg').addEventListener('click',()=>switchLogTab('reg'));
+  document.getElementById('tabCode').addEventListener('click',()=>switchLogTab('code'));
+  document.getElementById('pwLogin').addEventListener('click',doPasswordLogin);
+  document.getElementById('pwForgot').addEventListener('click',doForgot);
+  document.getElementById('regSend').addEventListener('click',sendSignupCode);
+  document.getElementById('regDo').addEventListener('click',doRegister);
+  document.getElementById('setPassDo').addEventListener('click',doSetPassword);
+  document.getElementById('logSetPass').addEventListener('click',()=>{
+    const pin=document.getElementById('logPanelIn'), pout=document.getElementById('logPanelOut');
+    if(pin) pin.style.display='block'; if(pout) pout.style.display='none';
+    switchLogTab('set'); const st=document.getElementById('logStatus'); if(st) st.textContent='请输入你的新密码';
+  });
   document.getElementById('chatSend').addEventListener('click',sendNpcChat);
   document.getElementById('npcChatIn').addEventListener('keydown',(e)=>{ if(e.key==='Enter') sendNpcChat(); });
   document.getElementById('logToken').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doLogin(); });
   document.getElementById('logEmail').addEventListener('keydown',(e)=>{ if(e.key==='Enter') sendLoginCode(); });
+  document.getElementById('pwPass').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doPasswordLogin(); });
+  document.getElementById('pwEmail').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doPasswordLogin(); });
+  document.getElementById('regPass2').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doRegister(); });
+  document.getElementById('regEmail').addEventListener('keydown',(e)=>{ if(e.key==='Enter') sendSignupCode(); });
+  document.getElementById('setPass2').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doSetPassword(); });
 }
 window.addEventListener('load', init);
 
